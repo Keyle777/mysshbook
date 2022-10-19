@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>登录成功页面</title>
+<link type="text/css" rel="stylesheet" th:href="@{/static/css/style.css}" >
+<style type="text/css">
+	h1 {
+		text-align: center;
+		margin-top: 200px;
+	}
+
+	h1 a {
+		color:red;
+	}
+</style>
+</head>
+<body>
+		<div id="header">
+				<a th:href="@{/book/index}">
+					<img class="logo_img" alt="" th:src="@{/static/img/logo.gif}" />
+				</a>
+				<div>
+					<span>欢迎<span class="um_span" th:text="${session.currentUser.uname}">张总</span>光临书城</span>
+					<a th:href="@{/order/selectAllOrder}">我的订单</a>
+					<a th:href="@{/user/exit}">注销</a>&nbsp;&nbsp;
+					<a th:href="@{/login}">返回</a>
+				</div>
+		</div>
+
+		<div id="main">
+			<h1>欢迎回来 <a th:href="@{/book/index}">转到主页</a></h1>
+		</div>
+		<div id="bottom">
+			<span>
+				红杏书城.Copyright &copy;2022
+			</span>
+		</div>
+</body>
+</html>

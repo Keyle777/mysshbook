@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.keyle.mapper.CartItemMapper">
+    <resultMap id="cartItemMap" type="cartItem">
+        <id property="id" column="id"/>
+        <result property="book" column="book"/>
+        <result property="buyCount" column="buyCount"/>
+        <result property="userBean" column="userBean"/>
+
+        <collection property="myBook" ofType="book">
+            <id property="id" column="bookid"/>
+            <result property="bookImg" column="bookImg"/>
+            <result property="bookName" column="bookName"/>
+            <result property="price" column="price"/>
+            <result property="author" column="author"/>
+            <result property="saleCount" column="saleCount"/>
+            <result property="bookCount" column="bookCount"/>
+        </collection>
+    </resultMap>
+
+
+    <!--//获得购物车项列表 /cart/selectCartItem
+    List<OrderItem> selectCartItem();-->
+    <select id="selectCartItem" resultMap="cartItemMap">
+        select t.id,book,buyCount,userBean,tb.id as 'bookid',bookImg,bookName,price,author,saleCount,bookCount
+        from t_cart_item t left join t_book tb on tb.id = t.book
+        where t.userBean=#{id}
+    </select>
+
+    <!--    //删除购物车项 /cart/deleteCartItem?id=1
+    Integer deleteCartItem(Integer id);-->
+    <delete id="deleteCartItem">
+        delete from t_cart_item where id = #{id}
+    </delete>
+    <!--    //批量删除购物车项 /cart/batchDeleteCartItem?id=...
+    Integer batchDeleteCartItem(Integer[] batchCartItemIds);-->
+    <delete id="batchDeleteCartItem">
+        delete from t_cart_item
+        where id in
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <!--    //加入到购物车
+    Integer addCartItem(CartItem cartItem);-->
+    <insert id="addCartItem" parameterType="cartItem">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into t_cart_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id !=null">id,</if>
+            <if test="book !=null ">book,</if>
+            <if test="buyCount !=null ">buyCount,</if>
+            <if test="userBean !=null ">userBean</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id !=null">#{id},</if>
+            <if test="book !=null ">#{book},</if>
+            <if test="buyCount !=null ">#{buyCount},</if>
+            <if test="userBean !=null ">#{userBean}</if>
+        </trim>
+    </insert>
+
+    <!--    //修改数量
+    Integer updateCartItem(Integer id,Integer num);-->
+    <update id="updateCartItem">
+        update t_cart_item set buyCount = #{num} where id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--1、读取属性文件properties,选择context那个后缀的标签-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <!--2、创建数据源-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${prop.driverClassName}"/>
+        <property name="username" value="${prop.username}"/>
+        <property name="password" value="${prop.password}"/>
+        <property name="url" value="${prop.url}"/>
+    </bean>
+    <!--3、配置SqlSessionFactoryBean类，人家做好了你配置就能用-->
+    <!--这个就是之前mybatis取得sqlsession，做原本SqlSession能做的任何事，取mapper，去调用xml的sql语句等等-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--配置数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--配置mybatis的核心配置文件，因为有些功能spring提供不了，得用那个文件来提供，所以你要加进来-->
+        <property name="configLocation" value="classpath:SqlMapConfig.xml"/>
+        <!--注册实体类的别名pojo-->
+        <property name="typeAliasesPackage" value="top.keyle.pojo"/>
+    </bean>
+    <!--4、注册mapper.xml文件,这个和上面那个一样是spring提供的，专门用来扫描mapper并注册的工具类-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="top.keyle.mapper"/>
+    </bean>
+</beans>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--1、扫描controller包-->
+    <context:component-scan base-package="top.keyle.controller"/>
+    <!--2、配置thymeleaf视图解析器-->
+    <bean id="viewResolver" class="org.thymeleaf.spring5.view.ThymeleafViewResolver">
+        <property name="order" value="1"/>
+        <property name="characterEncoding" value="UTF-8"/>
+        <property name="templateEngine">
+            <bean class="org.thymeleaf.spring5.SpringTemplateEngine">
+                <property name="templateResolver">
+                    <bean class="org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver">
+                        <!-- 视图前缀 -->
+                        <property name="prefix" value="/WEB-INF/action/"/>
+                        <!-- 视图后缀 -->
+                        <property name="suffix" value=".html"/>
+                        <property name="templateMode" value="HTML5"/>
+                        <property name="characterEncoding" value="UTF-8"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+    </bean>
+    <!--3、可以设置只有显示功能的页面-->
+    <mvc:view-controller path="/regist" view-name="user/regist"/>
+    <mvc:view-controller path="/login" view-name="user/login"/>
+    <mvc:view-controller path="/cart" view-name="cart/cart"/>
+    <mvc:view-controller path="/bookadd" view-name="manager/book_add"/>
+    <mvc:view-controller path="/manager" view-name="manager/manager"/>
+    <mvc:view-controller path="/ordermanager" view-name="manager/order_manager"/>
+
+    <!--4、使静态资源也可以被读取到-->
+    <mvc:default-servlet-handler/>
+    <!--5、开启mvc注解驱动-->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <!-- 处理响应中文内容乱码 -->
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="defaultCharset" value="UTF-8"/>
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html</value>
+                        <value>application/json</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <!--6、开启拦截器-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!--所有请求都经过拦截器方法，pre返回false就拦截，per方法返回ture就放行-->
+            <!--一个*表示1个或多个任意字符，两个*表示一层或多层目录-->
+            <mvc:mapping path="/**"/>
+            <!--只放行的请求路径-->
+            <mvc:exclude-mapping path="/book/index"/>
+            <bean class="top.keyle.interceptor.FirstInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"></bean>
+</beans>

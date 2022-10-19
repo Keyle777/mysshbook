@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.keyle.mapper.OrderItemMapper">
+    <resultMap id="orderItemMap" type="orderItem">
+        <id property="id" column="id"/>
+        <result property="book" column="book"/>
+        <result property="buyCount" column="buyCount"/>
+        <result property="orderBean" column="orderBean"/>
+
+        <collection property="myBook" ofType="book">
+            <id property="id" column="bookid"/>
+            <result property="bookImg" column="bookImg"/>
+            <result property="bookName" column="bookName"/>
+            <result property="price" column="price"/>
+            <result property="author" column="author"/>
+            <result property="saleCount" column="saleCount"/>
+            <result property="bookCount" column="bookCount"/>
+        </collection>
+    </resultMap>
+    <!--    //查询订单信息 /orderdetail/selectOrderItem?id=1
+    OrderItemService selectOrderItem(Integer id);-->
+    <select id="selectOrderItem" resultMap="orderItemMap">
+        select t1.id,
+               book,
+               buyCount,
+               orderBean,
+               tb.id as 'bookid',bookImg,
+               bookName,
+               price,
+               author,
+               saleCount,
+               bookCount
+        from t_order_item t1
+                 left join t_book tb on tb.id = t1.orderBean
+        where t1.id = #{id}
+    </select>
+
+    <!--    //删除订单 /orderdetail/deleteOrderItem?id=1-->
+    <delete id="deleteOrderItem">
+        delete
+        from t_order_item
+        where id = #{id}
+    </delete>
+    <!--    //批量删除订单 /orderdetail/batchDeleteOrderItem?id=1...-->
+    <delete id="batchDeleteOrderItem">
+        delete from t_order_item
+        where id in
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <!--    Integer addOrderItem(OrderItem orderItem);-->
+    <insert id="addOrderItem" parameterType="orderItem">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into t_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="book != null ">book,</if>
+            <if test="buyCount != null">buyCount,</if>
+            <if test="orderBean != null">orderBean</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="book != null ">#{book},</if>
+            <if test="buyCount != null">#{buyCount},</if>
+            <if test="orderBean != null">#{orderBean}</if>
+        </trim>
+    </insert>
+    <!--    //查询某个人的订单
+    List<OrderItem> selectCurrentUserEveryOrderItem(Integer id);-->
+    <select id="selectCurrentUserEveryOrderItem" resultMap="orderItemMap">
+        select t1.id,
+               book,
+               buyCount,
+               orderBean,
+               tb.id as 'bookid',bookImg,
+               bookName,
+               price,
+               author,
+               saleCount,
+               bookCount
+        from t_order_item t1
+                 left join t_book tb on tb.id = t1.book
+        where t1.orderBean = #{id}
+    </select>
+</mapper>

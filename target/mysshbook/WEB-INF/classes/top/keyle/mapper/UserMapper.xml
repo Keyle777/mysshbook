@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.keyle.mapper.UserMapper">
+    <resultMap id="userMap" type="user">
+        <id property="id" column="id"/>
+        <result property="uname" column="uname"/>
+        <result property="pwd" column="pwd"/>
+        <result property="email" column="email"/>
+        <result property="role" column="role"/>
+
+        <collection property="orderList" ofType="order">
+            <id property="id" column="orderid"/>
+            <result property="orderNo" column="orderNo"/>
+            <result property="orderDate" column="orderDate"/>
+            <result property="orderUser" column="orderUser"/>
+            <result property="orderMoney" column="orderMoney"/>
+            <result property="orderStatus" column="orderStatus"/>
+        </collection>
+
+
+    </resultMap>
+    <sql id="user">
+        id
+        ,uname,pwd,email,role
+    </sql>
+    <!--新增-->
+    <insert id="insertUser" parameterType="user">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into t_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id !=null and id !=''">id,</if>
+            <if test="uname !=null and uname !=''">uname,</if>
+            <if test="pwd !=null and pwd !=''">pwd,</if>
+            <if test="email !=null and email !=''">email,</if>
+            <if test="role !=null and role !=''">role</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id !=null and id !=''">#{id},</if>
+            <if test="uname !=null and uname !=''">#{uname},</if>
+            <if test="pwd !=null and pwd !=''">#{pwd},</if>
+            <if test="email !=null and email !=''">#{email},</if>
+            <if test="role !=null and role !=''">#{role}</if>
+        </trim>
+    </insert>
+    <!--    //删除一名用户 /user/deleteUser?id=1
+        Integer deleteUser(Integer id);-->
+    <delete id="deleteUser">
+        delete
+        from t_user
+        where id = #{id}
+    </delete>
+    <!--    //修改一名用户信息 /user/updateUser?...
+        Integer updateUser(User user);-->
+    <update id="updateUser" parameterType="user">
+        update t_user
+        <set>
+            <if test="id !=null and id !=''">id=#{id},</if>
+            <if test="uname !=null and uname !=''">uname=#{uname},</if>
+            <if test="pwd !=null and pwd !=''">pwd=#{pwd},</if>
+            <if test="email !=null and email !=''">email=#{email},</if>
+            <if test="role !=null and role !=''">role=#{role},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--查询一名用户信息 /user/detailUser?id=1
+        User detailUser(Integer id);
+     -->
+    <select id="detailUser" resultMap="userMap">
+        select u.id,
+               u.uname,
+               u.pwd,
+               u.email,
+               u.role,
+               t.id as 'orderid',t.orderNo,
+               t.orderDate,
+               t.orderUser,
+               t.orderMoney,
+               t.orderStatus
+        from t_user as u
+                 left join t_order t on u.id = t.orderUser
+        where u.id = #{id}
+    </select>
+    <!--    Integer selectUser(String uname,String pwd);-->
+    <select id="selectUser" resultMap="userMap">
+        select <include refid="user"></include>
+        from t_user
+        where uname = #{uname}
+          and pwd = #{pwd}
+    </select>
+</mapper>
